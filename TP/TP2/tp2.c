@@ -213,7 +213,7 @@ int main(int argc, char *argv[])
         int rep;
         scanf("%d", &rep);
         if (rep) {
-            printf("Nouveau numéro ? : ");
+            printf("Nouveau numéro (1=oui, 0=non) ? : ");
             char new_num[size];
             scanf("%s", new_num);
             modif_tel(&annuaire[pos], new_num);

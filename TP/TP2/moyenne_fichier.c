@@ -10,7 +10,7 @@ moyenne_fichier.c -Wall -Wextra -pedantic
 */
 #include <stdio.h>
 
-int main(void)
+int main_moyenne(void)
 {
     int i; /* nbre lu */
     float somme = 0.0;/* la somme des nombres lus */

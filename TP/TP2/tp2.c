@@ -141,11 +141,11 @@ void bubble_sort_nom(Annuaire annuaire, int nb_personnes)
 
 int main(int argc, char *argv[])
 {
-    //Date d = lire_date();
-    //afficher_date(d);
-    //Personne *ptr_pers = malloc(sizeof(Personne));
-    //lire_personne(ptr_pers);
-    //affiche_personne(*ptr_pers);
+    if (argc != 2) {
+        printf("Utilisation : ./%s fichier.txt ! \n",argv[0]);
+        printf("Nombre d'arguments fournis : %d\n",argc);
+
+    }
     Annuaire annuaire;
 
     FILE *fp;

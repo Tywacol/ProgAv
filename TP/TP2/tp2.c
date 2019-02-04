@@ -65,17 +65,18 @@ void afficher_date(Date date)
 int lire_personne(Personne *ptr_pers, FILE *fd)
 {
     if (fd != NULL) {
-        if (scanf(fd, "%s%s%d%d%d%s",
+        fscanf(fd, "%s%s%d%d%d%s",
                   ptr_pers->nom,
                   ptr_pers->prenom,
                   &ptr_pers->Naissance.jour,
                   &ptr_pers->Naissance.mois,
                   &ptr_pers->Naissance.annee,
-                  ptr_pers->tel) == feof(fd)) {
-            return 1;
+                  ptr_pers->tel);
+        if (!feof(fd)){
+            return 0;
         }
     }
-    return 0;
+    return 1;
 }
 
 int construire_annuaire(Annuaire annuaire, int current_pos, char* f_name)
@@ -85,6 +86,7 @@ int construire_annuaire(Annuaire annuaire, int current_pos, char* f_name)
     while (lire_personne(&annuaire[current_pos],fd) == 0) {
         current_pos++;
     }
+    fclose(fd);
     return current_pos;
 }
 
@@ -139,10 +141,51 @@ void bubble_sort_nom(Annuaire annuaire, int nb_personnes)
     }
 }
 
+int rech_dico(char * nom_pers, int  size_nom_pers, Annuaire annuaire, int size_annuaire) {
+    int debut = 0;
+    int fin = size_annuaire;
+    int mil;
+    while (debut <= fin) {
+        mil = (fin + debut) / 2;
+        if (strcmp(annuaire[mil].nom,nom_pers) == 0) {
+            return mil;
+        } else if (strcmp(annuaire[mil].nom,nom_pers) > 0) {
+            fin = mil - 1;
+        } else {
+            debut = mil + 1; /* + 1 pour terminaison */
+        }
+    }
+    return -1;
+}
+
+void modif_tel(Personne *p, char *new_num) {
+    strcpy(p->tel,new_num);
+}
+
+void sauvegarde_annuaire(Annuaire annuaire, char * f_name, int size_annuaire) {
+    FILE * fd;
+    int i = 0;
+    /* open the file for writing*/
+    fd = fopen (f_name,"w");
+    while (i < size_annuaire) {
+        fprintf(fd, "%s\n%s\n%d\n%d\n%d\n%s\n",
+                  annuaire[i].nom,
+                  annuaire[i].prenom,
+                  annuaire[i].Naissance.jour,
+                  annuaire[i].Naissance.mois,
+                  annuaire[i].Naissance.annee,
+                  annuaire[i].tel);
+        i++;
+    }
+ 
+    /* close the file*/  
+    fclose (fd);
+}
+
 int main(int argc, char *argv[])
 {
     if (argc != 2) {
-        printf("Utilisation : ./%s fichier.txt ! \n",argv[0]);
+        printf("Utilisation : %s fichier.txt ! \n",argv[0]);
         printf("Nombre d'arguments fournis : %d\n",argc);
 
     }
@@ -152,12 +195,35 @@ int main(int argc, char *argv[])
     fp = fopen("annu.txt", "r");
     int size = construire_annuaire(annuaire, 0,argv[1]);
     printf("Avant tri : \n");
+    
+    size++; // A DEBUGGER : si feof(fd) la personne a ete importe mais la fonction retourne 1 et donc le compteur ne prend pas en compte le dernier.. 
     affiche_annaire(annuaire, size);
     printf("Apres tri : \n");
     bubble_sort_nom(annuaire, size);
     //bubble_sort_nom(annuaire, size);
     affiche_annaire(annuaire, size);
-
-
+    char nom_cherche[SIZE];
+    printf("Entrez un nom : ");
+    scanf("%s",nom_cherche);
+    int pos = rech_dico(nom_cherche, SIZE, annuaire, size);
+    if (pos != -1) {
+        printf("Personne trouvee à l'indice %d :\n",pos);
+        affiche_personne(annuaire[pos]);
+        printf("Modifier son numéro ?\n");
+        int rep;
+        scanf("%d", &rep);
+        if (rep) {
+            printf("Nouveau numéro ? : ");
+            char new_num[size];
+            scanf("%s", new_num);
+            modif_tel(&annuaire[pos], new_num);
+            printf("Modification effectuee. Nouveau profil :\n");
+            affiche_personne(annuaire[pos]);
+            sauvegarde_annuaire(annuaire, "nouveau_annu.txt", size);
+            printf("Fichier sauvegarde.\n");
+        }   
+    } else {
+        printf("inconnu\n");
+    }
     return 0;
 }

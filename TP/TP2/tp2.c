@@ -141,7 +141,8 @@ void bubble_sort_nom(Annuaire annuaire, int nb_personnes)
     }
 }
 
-int rech_dico(char * nom_pers, int  size_nom_pers, Annuaire annuaire, int size_annuaire) {
+int rech_dico(char * nom_pers, int  size_nom_pers, Annuaire annuaire, int size_annuaire) 
+{
     int debut = 0;
     int fin = size_annuaire;
     int mil;
@@ -162,7 +163,8 @@ void modif_tel(Personne *p, char *new_num) {
     strcpy(p->tel,new_num);
 }
 
-void sauvegarde_annuaire(Annuaire annuaire, char * f_name, int size_annuaire) {
+void sauvegarde_annuaire(Annuaire annuaire, char * f_name, int size_annuaire) 
+{
     FILE * fd;
     int i = 0;
     /* open the file for writing*/
@@ -182,6 +184,85 @@ void sauvegarde_annuaire(Annuaire annuaire, char * f_name, int size_annuaire) {
     fclose (fd);
 }
 
+int menu(Annuaire annuaire, int size)
+{
+    printf("----------------------------------------------------------------\n");
+    printf("1 - Afficher l'annuaire\n");
+    printf("2 - Recherche d'une personne\n");
+    printf("3 - Modification du numéro de téléphone d'une personne donnée\n");
+    printf("4 - Sauvegarder et quitter\n");
+    printf("5 - Quitter\n");
+    printf("----------------------------------------------------------------\n");
+    printf("Choix ? (1-5) : ");
+    int choix;
+    scanf("%d", &choix);
+    char nom_cherche[SIZE];
+    int pos;
+    switch(choix) {
+        case 1:
+            printf("----------------------------------------------------------------\n");
+            printf("1 - Afficher l'annuaire\n");
+            printf("----------------------------------------------------------------\n");
+            affiche_annaire(annuaire, size);
+            break;
+        case 2:
+            printf("----------------------------------------------------------------\n");
+            printf("2 - Recherche d'une personne\n");
+            printf("----------------------------------------------------------------\n");
+            printf("Entrez un nom (9 lettres max): ");
+            scanf("%s",nom_cherche);
+            pos = rech_dico(nom_cherche, SIZE, annuaire, size);
+            if (pos != -1) {
+                printf("Personne trouvee à l'indice %d :\n",pos);
+                affiche_personne(annuaire[pos]);
+            } else {
+                printf("Pas d'entree dans l'annuaire\n");
+            }
+            break;
+        case 3:
+            printf("----------------------------------------------------------------\n");
+            printf("3 - Modification du numéro de téléphone d'une personne donnée\n");
+            printf("----------------------------------------------------------------\n");
+            printf("Entrez un nom (9 lettres max): ");
+            scanf("%s",nom_cherche);
+            pos = rech_dico(nom_cherche, SIZE, annuaire, size);
+            if (pos != -1) {
+                printf("Personne trouvee à l'indice %d :\n",pos);
+                affiche_personne(annuaire[pos]);
+                printf("Nouveau numéro ? : ");
+                char new_num[size];
+                scanf("%s", new_num);
+                modif_tel(&annuaire[pos], new_num);
+                printf("Modification effectuee.\n Nouveau profil : ");
+                affiche_personne(annuaire[pos]);
+            } else {
+                printf("Pas d'entree dans l'annuaire\n");
+            }
+            break;
+        case 4:
+            printf("----------------------------------------------------------------\n");
+            printf("4 - Sauvegarder et quitter\n");
+            printf("----------------------------------------------------------------\n");
+            printf("Nom du fichier ? : ");
+            char nom_fichier[128];
+            scanf("%s", nom_fichier);
+            sauvegarde_annuaire(annuaire, nom_fichier, size);
+            printf("Fichier sauvegarde : %s.\n",nom_fichier);
+            return 0;
+        case 5:
+            printf("----------------------------------------------------------------\n");
+            printf("5 - Quitter\n");
+            printf("----------------------------------------------------------------\n");
+            return 0;
+        default:
+            printf("Le choix n'est pas correct : %d\n",choix);
+            return 0;
+    }
+    return 1; // Tout s'est bien passé
+            
+    
+}
+
 int main(int argc, char *argv[])
 {
     if (argc != 2) {
@@ -189,41 +270,23 @@ int main(int argc, char *argv[])
         printf("Nombre d'arguments fournis : %d\n",argc);
 
     }
+    // INITIALISATION
     Annuaire annuaire;
-
     FILE *fp;
     fp = fopen("annu.txt", "r");
     int size = construire_annuaire(annuaire, 0,argv[1]);
-    printf("Avant tri : \n");
-    
     size++; // A DEBUGGER : si feof(fd) la personne a ete importe mais la fonction retourne 1 et donc le compteur ne prend pas en compte le dernier.. 
-    affiche_annaire(annuaire, size);
-    printf("Apres tri : \n");
     bubble_sort_nom(annuaire, size);
-    //bubble_sort_nom(annuaire, size);
-    affiche_annaire(annuaire, size);
-    char nom_cherche[SIZE];
-    printf("Entrez un nom : ");
-    scanf("%s",nom_cherche);
-    int pos = rech_dico(nom_cherche, SIZE, annuaire, size);
-    if (pos != -1) {
-        printf("Personne trouvee à l'indice %d :\n",pos);
-        affiche_personne(annuaire[pos]);
-        printf("Modifier son numéro ?\n");
-        int rep;
-        scanf("%d", &rep);
-        if (rep) {
-            printf("Nouveau numéro (1=oui, 0=non) ? : ");
-            char new_num[size];
-            scanf("%s", new_num);
-            modif_tel(&annuaire[pos], new_num);
-            printf("Modification effectuee. Nouveau profil :\n");
-            affiche_personne(annuaire[pos]);
-            sauvegarde_annuaire(annuaire, "nouveau_annu.txt", size);
-            printf("Fichier sauvegarde.\n");
-        }   
-    } else {
-        printf("inconnu\n");
-    }
+
+    // LOOP
+    printf("Bonjour ! Ce programme permet de manipuler un annuaire.\n");
+    printf("Ses fonctionnalites sont les suivantes : \n");
+    while(menu(annuaire, size)); // Boucle sur le menu tant que l'utilisateur ne quitte pas
+    
+     
+    // END
+    printf("----------------------------------------------------------------\n");
+    printf("Fin du programme.. \n");
+    printf("----------------------------------------------------------------\n");
     return 0;
 }

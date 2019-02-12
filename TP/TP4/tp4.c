@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+
+// TP4 of Advanced C
+
 typedef struct Cell {
     int val;
     struct Cell *next;
@@ -25,6 +28,7 @@ void afficher_liste(Liste liste) {
     while (liste != NULL) {
         printf("%d ", liste->val);
         liste = liste->next;
+
 
     }
     printf("]\n");
